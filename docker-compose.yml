@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    container_name: employees
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: orangelion
+      POSTGRES_DB: employeeDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - employee-postgres-data:/var/lib/postgresql/data
+#      - ./db/init:/docker-entrypoint-initdb.d
+    networks:
+      - employees-network
+
+  spring-boot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/employeeDB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: orangelion
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - employees-network
+
+networks:
+  employees-network:
+    driver: bridge
+
+volumes:
+  employee-postgres-data:
