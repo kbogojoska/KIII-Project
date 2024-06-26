@@ -4,9 +4,8 @@ metadata:
   name: employee-app-conf
   namespace: kiii
 data:
-  POSTGRES_URL: jdbc:postgresql://kiii-postgres-service:5432/employeeDB
-  POSTGRES_DATABASE: employeeDB
-  POSTGRES_USER: postgres
+  SPRING_DATASOURCE_URL: jdbc:postgresql://kiii-postgres-service:5432/employeeDB
+  SPRING_DATASOURCE_USERNAME: postgres
 
 ---
 apiVersion: v1
@@ -16,7 +15,7 @@ metadata:
   namespace: kiii
 type: Opaque
 data:
-  POSTGRES_PASSWORD: b3JhbmdlbGlvbg==
+  SPRING_DATASOURCE_PASSWORD: b3JhbmdlbGlvbg==
 
 ---
 apiVersion: apps/v1
@@ -50,8 +49,8 @@ spec:
             - configMapRef:
                 name: employee-app-conf
           env:
-            - name: POSTGRES_PASSWORD
+            - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: employee-app-secret
-                  key: POSTGRES_PASSWORD
+                  key: SPRING_DATASOURCE_PASSWORD
