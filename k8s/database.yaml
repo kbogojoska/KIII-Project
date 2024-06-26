@@ -4,6 +4,7 @@ metadata:
   name: kiii-postgres-conf
   namespace: kiii
 data:
+  POSTGRES_URL: jdbc:postgresql://kiii-postgres-service:5432/employeeDB
   POSTGRES_DB: employeeDB
   POSTGRES_USER: postgres
 
@@ -49,6 +50,7 @@ spec:
       port: 5432
 
 ---
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -73,6 +75,16 @@ spec:
             - configMapRef:
                 name: kiii-postgres-conf
           env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: kiii-postgres-conf
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: kiii-postgres-conf
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -82,12 +94,125 @@ spec:
             - containerPort: 5432
               name: postgres-port
           volumeMounts:
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
             - name: kiii-postgres-pv
               mountPath: /var/lib/postgresql/data
       volumes:
         - name: kiii-postgres-pv
           persistentVolumeClaim:
             claimName: kiii-postgres-pvc
+        - name: initdb
+          configMap:
+            name: postgres-initdb-config
+            items:
+              - key: init.sql
+                path: init.sql
+#apiVersion: apps/v1
+#kind: StatefulSet
+#metadata:
+#  name: kiii-postgres
+#  namespace: kiii
+#spec:
+#  serviceName: kiii-postgres-service
+#  replicas: 1
+#  selector:
+#    matchLabels:
+#      app: postgres
+#  template:
+#    metadata:
+#      labels:
+#        app: postgres
+#    spec:
+##      initContainers:
+##        - name: init-postgres-db
+##          image: postgres:latest
+##          #          envFrom:
+##          #            - configMapRef:
+##          #                name: kiii-postgres-conf
+##          ##                key: POSTGRES_DB
+##
+##          env:
+##            - name: POSTGRES_DB
+##              valueFrom:
+##                configMapKeyRef:
+##                  name: kiii-postgres-conf
+##                  key: POSTGRES_DB
+##            - name: POSTGRES_USER
+##              valueFrom:
+##                configMapKeyRef:
+##                  name: kiii-postgres-conf
+##                  key: POSTGRES_USER
+##            - name: POSTGRES_PASSWORD
+##              valueFrom:
+##                secretKeyRef:
+##                  name: kiii-postgres-secret
+##                  key: POSTGRES_PASSWORD
+##          volumeMounts:
+##            - name: postgres-initdb
+##              mountPath: /docker-entrypoint-initdb.d
+#      #          volumeMounts:
+#      #            - name: kiii-postgres-pv
+#      #              mountPath: /var/lib/postgresql/data
+#      #            - name: initdb
+#      #              mountPath: /docker-entrypoint-initdb.d
+#      containers:
+#        - name: postgres
+#          image: postgres:latest
+#          imagePullPolicy: IfNotPresent
+#          ports:
+#            - containerPort: 5432
+#              name: postgres-port
+#          envFrom:
+#            - configMapRef:
+#                name: kiii-postgres-conf
+#          env:
+#            - name: POSTGRES_PASSWORD
+#              valueFrom:
+#                secretKeyRef:
+#                  name: kiii-postgres-secret
+#                  key: POSTGRES_PASSWORD
+#          volumeMounts:
+#            - name: postgres-persistent-storage
+#              mountPath: /var/lib/postgresql/data
+#            - name: postgres-initdb
+#              mountPath: /docker-entrypoint-initdb.d
+#      volumes:
+#        - name: postgres-initdb
+#          hostPath:
+#            path: /postgres-init
+#            type: Directory
+#        - name: postgres-persistent-storage
+#          persistentVolumeClaim:
+#            claimName: kiii-postgres-pvc
+#      #            name: postgres-persistent-storage
+#      #              mountPath: /var/lib/postgres
+#      #              name: postgres-initdb
+#      #                mountPath: /docker-entrypoint-initdb.d
+#      #              volumes:
+#      #            name: postgres-initdb
+#      #              hostPath:
+#      #                path: /postgres-init
+#      #                type: Directory
+#      ##  volumeClaimTemplates:
+#      ##  metadata:
+#      ##    name: postgres-persistent-storage
+#      ##    spec:
+#      ##      accessModes: [ "ReadWriteOnce" ]
+#      ##      resources:
+#      ##        requests:
+#      ##          storage: 10Gi
+#      #          volumeMounts:
+#      #            - name: kiii-postgres-pv
+#      #              mountPath: /var/lib/postgresql/data
+##      volumes:
+##        - name: kiii-postgres-pv
+##          persistentVolumeClaim:
+##            claimName: kiii-postgres-pvc
+##        - name: initdb
+##          configMap:
+##            name: postgres-initdb-config
+
 
 ---
 apiVersion: v1
