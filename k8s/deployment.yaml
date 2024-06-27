@@ -54,3 +54,4 @@ spec:
                 secretKeyRef:
                   name: employee-app-secret
                   key: SPRING_DATASOURCE_PASSWORD
+#  for workflows
