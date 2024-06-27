@@ -6,7 +6,6 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 FROM openjdk:17-jdk-slim
-LABEL authors="Katerina Bogojoska 211140"
 WORKDIR /app
 COPY --from=build /app/target/*.jar KIII-Project-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
