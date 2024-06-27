@@ -24,7 +24,7 @@ metadata:
   name: employee-app-deployment
   namespace: kiii
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: employeeapp
@@ -44,7 +44,7 @@ spec:
             requests:
               memory: "256Mi"
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           envFrom:
             - configMapRef:
                 name: employee-app-conf

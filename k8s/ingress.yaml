@@ -3,13 +3,10 @@ kind: Ingress
 metadata:
   name: employee-app-ingress
   namespace: kiii
-  annotations:
-    ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: traefik
   rules:
-    - host: localhost
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix
@@ -17,14 +14,4 @@ spec:
               service:
                 name: employee-app-service
                 port:
-                  number: 80
-    - host: employeeapp.local
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: employee-app-service
-                port:
-                  number: 80
+                  number: 8080
